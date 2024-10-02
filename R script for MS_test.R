@@ -221,7 +221,7 @@ cdup<-as.data.frame(majornewest_Com %>%
                                coordinatePrecision,	geodeticDatum,	country,	countryCode,	stateProvince, locality,	island,	habitat, occurrenceStatus,	occurrenceRemarks, 
                                establishmentMeans,	eventDate,	day, month,	year,	basisOfRecord,	institutionCode,	collectionCode, datasetName, issueFlag) %>% 
                       mutate(dupe = n()>1))
-write.csv(cdup,"~/Documents/ZMT mangrove trait project/R/cdup.csv", row.names = FALSE)
+write.csv(cdup,"LOCATION/cdup.csv", row.names = FALSE)
 dim(cdup)
 sum(cdup$dupe == TRUE)
 sum(cdup$database== 'OBIS' & cdup$dupe == TRUE)
@@ -234,7 +234,7 @@ majornewestcompletedup<-as.data.frame(majornewest_Com %>%
                                                       coordinatePrecision,	geodeticDatum,	country,	countryCode,	stateProvince, locality,	island,	habitat, occurrenceStatus,	occurrenceRemarks, 
                                                       establishmentMeans,	eventDate,	day, month,	year,	basisOfRecord,	institutionCode,	collectionCode, datasetName, issueFlag, database) %>% 
                                              mutate(dupe = n()>1))
-write.csv(majornewestcompletedup,"~/Documents/ZMT mangrove trait project/R/majornewestpseudoperfectdup.csv", row.names = FALSE)
+write.csv(majornewestcompletedup,"LOCATION/majornewestpseudoperfectdup.csv", row.names = FALSE)
 
 #count number of complete duplicates 
 sum(majornewestcompletedup$dupe == TRUE)#within database
@@ -312,7 +312,7 @@ majornewest_potentialduplicate_dbdup<-as.data.frame(majornewest_TNCcom_dedup %>%
                                                       group_by(nameinlist,decimalLatitude,decimalLongitude, eventDate, day, month, year, database) %>% 
                                                       mutate(dupe3 = n()>1))
 majornewest_potentialduplicate_dbdup<-subset(majornewest_potentialduplicate_dbdup, select = -c(dupe) )
-write.csv(majornewest_potentialduplicate_dbdup,"~/Documents/ZMT mangrove trait project/R/majornewest_potentialduplicate_dbdup.csv", row.names = FALSE)
+write.csv(majornewest_potentialduplicate_dbdup,"LOCATION/majornewest_potentialduplicate_dbdup.csv", row.names = FALSE)
 sum(majornewest_potentialduplicate_dbdup$dupe3 == TRUE)
 
 #count rows that are partial duplicates (overall) #
@@ -356,7 +356,8 @@ acrosspdup<-subset(dpdup_dup, dupe4 == "TRUE")
 View(acrosspdup)
 
 
-#deduplicate across-database potentialduplicates; keeping GBIS as more info retained#
+#deduplicate across-database potential duplicates; keeping GBIS as more info retained#
+#"af0652d4-7aa3-4fc5-91bb-598765a34e68" and "f62c1bb2-62b4-4392-a742-404898d7184e" are the two potential duplicates found from manual inspection after the previous step#
 dedup<-majornewest_TNCcom_dedup[!grepl("af0652d4-7aa3-4fc5-91bb-598765a34e68", 
                                        majornewest_TNCcom_dedup$id),]
 dedup<-dedup[!grepl("f62c1bb2-62b4-4392-a742-404898d7184e", dedup$id),]
@@ -440,6 +441,7 @@ inman_decimal_count$percent<- as.numeric(format(round(inman_decimal_count$percen
 inman_decimal_count$coordecimal<-as.factor(inman_decimal_count$coordecimal)
 
 #####Count entries by coodrinate precision#####
+#find out the precision information from coordinatePrecision and coordinateUncertaintyInMeters#
 inman$precision <- ifelse(inman$database == "GBIF", 
                           ifelse(is.na(inman$coordinateUncertaintyInMeters), inman$coordinatePrecision * 111139, inman$coordinateUncertaintyInMeters),
                           ifelse(is.na(inman$coordinateUncertaintyInMeters), inman$coordinatePrecision,inman$coordinateUncertaintyInMeters))
@@ -483,6 +485,7 @@ inman_speciescount2<-as.data.frame(inman_species%>%
                                      summarise(n = n()))
 
 #####Count by AWP/IWP#####
+##IWP
 #species
 sum(grepl("Avicennia alba|Avicennia integra|Avicennia marina|Avicennia officinalis|Bruguiera cylindrica|Bruguiera exaristata|Bruguiera gymnorrhiza|Bruguiera hainesii|Bruguiera parviflora|Bruguiera sexangula|Bruguiera ×rhynchopetala|Ceriops australis|Ceriops decandra|Ceriops tagal|Kandelia candel|Kandelia obovata|Lumnitzera littorea|Lumnitzera racemosa|Nypa fruticans|Rhizophora apiculata|Rhizophora mucronata|Rhizophora samoensis|Rhizophora stylosa|Rhizophora ×lamarckii|Sonneratia alba|Sonneratia apetala|Sonneratia caseolaris|Sonneratia griffithii|Sonneratia lanceolata|Sonneratia ovata|Sonneratia ×gulngai", inman_species$nameinlist))
 inman_species$region <- ifelse(inman_species$nameinlist == "Avicennia alba|Avicennia integra|Avicennia marina|Avicennia officinalis|Bruguiera cylindrica|Bruguiera exaristata|Bruguiera gymnorrhiza|Bruguiera hainesii|Bruguiera parviflora|Bruguiera sexangula|Bruguiera ×rhynchopetala|Ceriops australis|Ceriops decandra|Ceriops tagal|Kandelia candel|Kandelia obovata|Lumnitzera littorea|Lumnitzera racemosa|Nypa fruticans|Rhizophora apiculata|Rhizophora mucronata|Rhizophora samoensis|Rhizophora stylosa|Rhizophora ×lamarckii|Sonneratia alba|Sonneratia apetala|Sonneratia caseolaris|Sonneratia griffithii|Sonneratia lanceolata|Sonneratia ovata|Sonneratia ×gulngai", "IWP", "AEP")
@@ -490,7 +493,7 @@ inman_species$region <- ifelse(inman_species$nameinlist == "Avicennia alba|Avice
 #obs
 sum(grepl("Avicennia alba|Avicennia integra|Avicennia marina|Avicennia officinalis|Bruguiera cylindrica|Bruguiera exaristata|Bruguiera gymnorrhiza|Bruguiera hainesii|Bruguiera parviflora|Bruguiera sexangula|Bruguiera ×rhynchopetala|Ceriops australis|Ceriops decandra|Ceriops tagal|Kandelia candel|Kandelia obovata|Lumnitzera littorea|Lumnitzera racemosa|Nypa fruticans|Rhizophora apiculata|Rhizophora mucronata|Rhizophora samoensis|Rhizophora stylosa|Rhizophora ×lamarckii|Sonneratia alba|Sonneratia apetala|Sonneratia caseolaris|Sonneratia griffithii|Sonneratia lanceolata|Sonneratia ovata|Sonneratia ×gulngai", inman$nameinlist))
 
-#AEP
+##AEP
 #species
 sum(grepl("Avicennia bicolor|Avicennia germinans|Avicennia schaueriana|Laguncularia racemosa|Rhizophora mangle|Rhizophora racemosa|Rhizophora ×harrisonii", inman_species$nameinlist))
 
